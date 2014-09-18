@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <iterator>
+#include <iomanip>
 
 namespace tum_benchmark
 {
@@ -109,7 +110,9 @@ public:
   
   FileReaderIterator<EntryFormatT> begin()
   {
-    return m_stream.good() ? FileReaderIterator<EntryFormatT>(this) : end(); 
+    FileReaderIterator<EntryFormatT> iterator = m_stream.good() ? FileReaderIterator<EntryFormatT>(this) : end();
+    // make iterator valid, by reading one entry
+    return ++iterator;
   }
   
   FileReaderIterator<EntryFormatT> end()
@@ -154,7 +157,7 @@ public:
 
   FileReaderIterator<EntryFormatT>& operator++() 
   {
-    if(!m_reader->tryReadNext(m_entry))
+    if(m_reader != 0 && !m_reader->tryReadNext(m_entry))
     {
       m_reader = 0;
     }
@@ -263,6 +266,26 @@ std::istream& operator>>(std::istream& is, tum_benchmark::Trajectory& t)
   is >> t.timestamp >> t.tx >> t.ty >> t.tz >> t.qx >> t.qy >> t.qz >> t.qw;
   
   return is;
+}
+
+struct FormatTimestamp
+{
+  double ts;
+
+  FormatTimestamp(const double &ts) : ts(ts) {}
+};
+
+std::ostream& operator<<(std::ostream& os, const tum_benchmark::FormatTimestamp& ts)
+{
+  os << std::fixed << std::setprecision(6) << ts.ts << std::resetiosflags(std::ios_base::fixed);
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const tum_benchmark::Trajectory& t)
+{
+  os << FormatTimestamp(t.timestamp) << " " << t.tx << " " << t.ty << " " << t.tz << " " << t.qx << " " << t.qy << " " << t.qz << " " << t.qw;
+
+  return os;
 }
 
 } // namespace tum_benchmark
