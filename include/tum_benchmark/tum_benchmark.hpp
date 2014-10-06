@@ -270,7 +270,6 @@ private:
 public:
   Dataset(const std::string& path) : m_path(path.at(path.size() - 1) == '/' ? path : path + "/")
   {
-    std::cout << path << std::endl;
     m_intrinsics = { 640, 480, 525.0, 525.0, 319.5, 239.5, 0, 0, 0, 0, 0, 1.0 / 5000.0 };
   }
 
