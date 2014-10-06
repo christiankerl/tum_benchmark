@@ -254,6 +254,84 @@ PrefixFileIterator<InnerIteratorT> make_prefix_file_iterator(const std::string &
   return PrefixFileIterator<InnerIteratorT>(prefix, inner);
 }
 
+struct Dataset
+{
+public:
+  struct Intrinsics
+  {
+    int width, height;
+    double fx, fy, ox, oy, d0, d1, d2, d3, d4;
+    double depth_scale;
+  };
+
+private:
+  std::string m_path;
+  Intrinsics m_intrinsics;
+public:
+  Dataset(const std::string& path) : m_path(path.at(path.size() - 1) == '/' ? path : path + "/")
+  {
+    std::cout << path << std::endl;
+    m_intrinsics = { 640, 480, 525.0, 525.0, 319.5, 239.5, 0, 0, 0, 0, 0, 1.0 / 5000.0 };
+  }
+
+  std::string prefix(const std::string &str) const
+  {
+    return m_path + str;
+  }
+
+  std::string prefix(const char *str) const
+  {
+    return prefix(std::string(str));
+  }
+
+  template<typename InnerIteratorT>
+  PrefixFileIterator<InnerIteratorT> prefix(const InnerIteratorT &inner) const
+  {
+    return make_prefix_file_iterator(m_path, inner);
+  }
+
+  template<typename EntryFormatT>
+  FileReader<EntryFormatT> *open(const std::string &filename) const
+  {
+    return new FileReader<EntryFormatT>(prefix(filename));
+  }
+
+  bool tryLoadIntrinsics()
+  {
+    static const std::string id_prefix = "rgbd_dataset_freiburg";
+    std::string::size_type pos = m_path.find(id_prefix);
+
+    bool found = false;
+
+    if(pos != std::string::npos)
+    {
+      char c = m_path.at(pos + id_prefix.size());
+
+      switch(c)
+      {
+      case '1':
+        m_intrinsics = { 640, 480, 517.3, 516.5, 318.6, 255.3, 0.2624, -0.9531, -0.0054, 0.0026, 1.1633, 1.035 / 5000.0 };
+        break;
+      case '2':
+        m_intrinsics = { 640, 480, 520.9, 521.0, 325.1, 249.7, 0.2312, -0.7849, -0.0033, -0.0001, 0.9172, 1.031 / 5000.0 };
+        break;
+      case '3':
+        m_intrinsics = { 640, 480, 535.4, 539.2, 320.1, 247.6, 0, 0, 0, 0, 0, 1.0 / 5000.0 };
+        break;
+      default:
+        break;
+      }
+    }
+
+    return found;
+  }
+
+  const Intrinsics &intrinsics() const
+  {
+    return m_intrinsics;
+  }
+};
+
 std::istream& operator>>(std::istream& is, tum_benchmark::File& file)
 {
   is >> file.timestamp >> file.name;
@@ -274,6 +352,19 @@ struct FormatTimestamp
 
   FormatTimestamp(const double &ts) : ts(ts) {}
 };
+
+std::ostream& operator<<(std::ostream& os, const tum_benchmark::Dataset::Intrinsics& intrinsics)
+{
+  os
+      << intrinsics.width << "x" << intrinsics.height
+      << " fx: " << intrinsics.fx
+      << " fy: " << intrinsics.fy
+      << " ox: " << intrinsics.ox
+      << " oy: " << intrinsics.oy
+      << " ds: " << intrinsics.depth_scale;
+
+  return os;
+}
 
 std::ostream& operator<<(std::ostream& os, const tum_benchmark::FormatTimestamp& ts)
 {
