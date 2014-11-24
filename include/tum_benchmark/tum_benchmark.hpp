@@ -192,7 +192,8 @@ private:
   InnerIteratorT m_inner;
   mutable EntryFormatT m_entry;
 public:
-  PrefixFileIterator()
+  PrefixFileIterator() :
+    m_prefix_op("")
   {
   }
   
@@ -295,6 +296,20 @@ public:
     return new FileReader<EntryFormatT>(prefix(filename));
   }
 
+  template<typename EntryFormatT>
+  void load(const std::string &filename, std::vector<EntryFormatT> &v) const
+  {
+    FileReader<EntryFormatT> reader(prefix(filename));
+    std::copy(reader.begin(), reader.end(), std::back_inserter(v));
+  }
+
+  template<typename EntryFormatT>
+  void loadPrefixed(const std::string &filename, std::vector<EntryFormatT> &v) const
+  {
+    FileReader<EntryFormatT> reader(prefix(filename));
+    std::copy(prefix(reader.begin()), prefix(reader.end()), std::back_inserter(v));
+  }
+
   bool tryLoadIntrinsics()
   {
     static const std::string id_prefix = "rgbd_dataset_freiburg";
@@ -331,14 +346,14 @@ public:
   }
 };
 
-std::istream& operator>>(std::istream& is, tum_benchmark::File& file)
+inline std::istream& operator>>(std::istream& is, tum_benchmark::File& file)
 {
   is >> file.timestamp >> file.name;
   
   return is;
 }
 
-std::istream& operator>>(std::istream& is, tum_benchmark::Trajectory& t)
+inline std::istream& operator>>(std::istream& is, tum_benchmark::Trajectory& t)
 {
   is >> t.timestamp >> t.tx >> t.ty >> t.tz >> t.qx >> t.qy >> t.qz >> t.qw;
   
@@ -352,7 +367,7 @@ struct FormatTimestamp
   FormatTimestamp(const double &ts) : ts(ts) {}
 };
 
-std::ostream& operator<<(std::ostream& os, const tum_benchmark::Dataset::Intrinsics& intrinsics)
+inline std::ostream& operator<<(std::ostream& os, const tum_benchmark::Dataset::Intrinsics& intrinsics)
 {
   os
       << intrinsics.width << "x" << intrinsics.height
@@ -365,13 +380,13 @@ std::ostream& operator<<(std::ostream& os, const tum_benchmark::Dataset::Intrins
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const tum_benchmark::FormatTimestamp& ts)
+inline std::ostream& operator<<(std::ostream& os, const tum_benchmark::FormatTimestamp& ts)
 {
   os << std::fixed << std::setprecision(6) << ts.ts << std::resetiosflags(std::ios_base::fixed);
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const tum_benchmark::Trajectory& t)
+inline std::ostream& operator<<(std::ostream& os, const tum_benchmark::Trajectory& t)
 {
   os << FormatTimestamp(t.timestamp) << " " << t.tx << " " << t.ty << " " << t.tz << " " << t.qx << " " << t.qy << " " << t.qz << " " << t.qw;
 
