@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iterator>
 #include <iomanip>
+#include <vector>
 
 namespace tum_benchmark
 {
@@ -324,13 +325,16 @@ public:
       switch(c)
       {
       case '1':
-        m_intrinsics = { 640, 480, 517.3, 516.5, 318.6, 255.3, 0.2624, -0.9531, -0.0054, 0.0026, 1.1633, 1.035 / 5000.0 };
+        m_intrinsics = { 640, 480, 517.3, 516.5, 318.6, 255.3, 0.2624, -0.9531, -0.0054, 0.0026, 1.1633, 1.0 / 5000.0 };
+        found = true;
         break;
       case '2':
-        m_intrinsics = { 640, 480, 520.9, 521.0, 325.1, 249.7, 0.2312, -0.7849, -0.0033, -0.0001, 0.9172, 1.031 / 5000.0 };
+        m_intrinsics = { 640, 480, 520.9, 521.0, 325.1, 249.7, 0.2312, -0.7849, -0.0033, -0.0001, 0.9172, 1.0 / 5000.0 };
+        found = true;
         break;
       case '3':
         m_intrinsics = { 640, 480, 535.4, 539.2, 320.1, 247.6, 0, 0, 0, 0, 0, 1.0 / 5000.0 };
+        found = true;
         break;
       default:
         break;
