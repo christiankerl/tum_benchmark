@@ -305,10 +305,26 @@ public:
   }
 
   template<typename EntryFormatT>
+  std::vector<EntryFormatT> load(const std::string &filename) const
+  {
+    std::vector<EntryFormatT> v;
+    load(filename, v);
+    return v;
+  }
+
+  template<typename EntryFormatT>
   void loadPrefixed(const std::string &filename, std::vector<EntryFormatT> &v) const
   {
     FileReader<EntryFormatT> reader(prefix(filename));
     std::copy(prefix(reader.begin()), prefix(reader.end()), std::back_inserter(v));
+  }
+
+  template<typename EntryFormatT>
+  std::vector<EntryFormatT> loadPrefixed(const std::string &filename) const
+  {
+    std::vector<EntryFormatT> v;
+    loadPrefixed(filename, v);
+    return v;
   }
 
   bool tryLoadIntrinsics()
@@ -349,6 +365,8 @@ public:
     return m_intrinsics;
   }
 };
+
+
 
 inline std::istream& operator>>(std::istream& is, tum_benchmark::File& file)
 {
