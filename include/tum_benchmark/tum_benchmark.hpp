@@ -305,6 +305,14 @@ public:
   }
 
   template<typename EntryFormatT>
+  std::vector<EntryFormatT> load(const std::string &filename) const
+  {
+    std::vector<EntryFormatT> v;
+    load(filename, v);
+    return v;
+  }
+
+  template<typename EntryFormatT>
   void loadPrefixed(const std::string &filename, std::vector<EntryFormatT> &v) const
   {
     FileReader<EntryFormatT> reader(prefix(filename));
@@ -357,6 +365,8 @@ public:
     return m_intrinsics;
   }
 };
+
+
 
 inline std::istream& operator>>(std::istream& is, tum_benchmark::File& file)
 {
