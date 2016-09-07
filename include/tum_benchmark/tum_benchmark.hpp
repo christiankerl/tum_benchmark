@@ -123,9 +123,9 @@ public:
   
   bool tryReadNext(EntryFormatT &entry)
   {
-    m_stream >> entry;
+    m_stream >> entry >> std::ws;
     
-    return m_stream.good();
+    return !m_stream.fail();
   }
 };
 
@@ -311,6 +311,14 @@ public:
     std::copy(prefix(reader.begin()), prefix(reader.end()), std::back_inserter(v));
   }
 
+  template<typename EntryFormatT>
+  std::vector<EntryFormatT> loadPrefixed(const std::string &filename) const
+  {
+    std::vector<EntryFormatT> v;
+    loadPrefixed<EntryFormatT>(filename, v);
+    return v;
+  }
+
   bool tryLoadIntrinsics()
   {
     static const std::string id_prefix = "rgbd_dataset_freiburg";
@@ -393,6 +401,13 @@ inline std::ostream& operator<<(std::ostream& os, const tum_benchmark::FormatTim
 inline std::ostream& operator<<(std::ostream& os, const tum_benchmark::Trajectory& t)
 {
   os << FormatTimestamp(t.timestamp) << " " << t.tx << " " << t.ty << " " << t.tz << " " << t.qx << " " << t.qy << " " << t.qz << " " << t.qw;
+
+  return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, const tum_benchmark::File& f)
+{
+  os << FormatTimestamp(f.timestamp) << " " << f.name;
 
   return os;
 }
